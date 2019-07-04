@@ -31,6 +31,7 @@ GSHEET = '1PRYYRoSDazS_aMZ2He_2Okto73QKP4BEl4JwIX2O5dQ'
 lista_contratistas = gpd.read_gexcel(GSHEET, sheet_name='Lista Contratistas')
 S = Spread(user = 'ebravofm', spread = GSHEET, user_creds_or_client=None)
 
+
 def browser(func):
     def browser_wrapper(*args, **kwargs):
         
@@ -143,7 +144,7 @@ def scrape_contractors(rut_list):
                 append_to_sheet(values, rut, TABS[tab_])
                 tprint(f'[+] Appended to sheet')
         except Exception as exc:
-            rprint(f'[-] Failed: {str(exc)[:200]}')
+            tprint(f'[-] Failed: {str(exc)[:200]}')
         n += 1
         
     d.close()
