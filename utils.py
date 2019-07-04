@@ -117,7 +117,7 @@ def scrape_contractors(rut_list):
     tprint(f'[·] Logging in...')
     d = ccs_login()
     n = 1
-    for rut in rut_list[::-1]:
+    for rut in rut_list:
         print()
         tprint(f'[·] Contratista {n}/{len(rut_list)}: {rut}...')
         try:
