@@ -36,9 +36,9 @@ def browser(func):
     def browser_wrapper(*args, **kwargs):
         
         options = webdriver.ChromeOptions()
-        if not os.path.exists('browser_data'):
-            os.makedirs('browser_data')
-        options.add_argument("user-data-dir=browser_data") 
+        '''if not os.path.exists('browser_data'):
+                                    os.makedirs('browser_data')
+                                options.add_argument("user-data-dir=browser_data") '''
 
         if sys.platform == 'linux':
             display = Display(visible=0, size=(800, 600))
