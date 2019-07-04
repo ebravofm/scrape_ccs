@@ -15,7 +15,7 @@ def main():
             sets = []
             for sheet in [s for s in PLANILLA.sheet_names if s not in ['Informe RS', 'Lista Contratistas']]:
                 sets.append(set(PLANILLA.parse(sheet)['1. Rut'].tolist()))
-            ruts_done = set.intersection(*ruts_)
+            ruts_done = set.intersection(*sets)
 
             ruts_pending = ruts_all - ruts_done
 
