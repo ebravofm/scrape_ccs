@@ -115,7 +115,7 @@ def scrape_contractors(rut_list):
     tprint(f'Logging in...')
     d = ccs_login()
     n = 1
-    for rut in rut_list:
+    for rut in rut_list[::-1]:
         
         tprint(f'N {n}:{rut}...')
         try:
