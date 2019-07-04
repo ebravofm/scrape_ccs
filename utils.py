@@ -51,7 +51,7 @@ def browser(func):
         d = webdriver.Chrome(options=options)
 
         
-        print('[+] Logged in.')
+        tprint('[+] Logged in.')
 
         try:
             result = func(d, *args, **kwargs)
@@ -97,7 +97,6 @@ def extract_contrator_list():
     Buscar = d.find_element_by_id('UserControlBuscador1_lnkBuscarSegmento')
     Buscar.click()
     WebDriverWait(d, 10).until(EC.presence_of_element_located((By.ID, "UserControlBuscador1_dgrListaBusqueda")))
-    print(1)
 
     # Parse table
     html = d.page_source
@@ -119,7 +118,9 @@ def scrape_contractors(rut_list):
     n = 1
     for rut in rut_list:
         print()
+        print()
         tprint(f'[·] Contratista {n}/{len(rut_list)}: {rut}...')
+        print()
         try:
 
             link = 'https://www.rednegociosccs.cl/WebPrivadoMandanteRPE/ConsultarFichaFull/Principal.aspx?proveedor=' + rut
@@ -142,16 +143,17 @@ def scrape_contractors(rut_list):
                         #tprint('Alert Accepted')
                     except:
                         pass
-                    tprint(f'[·] Extracting Values...')
+                    #tprint(f'[·] Extracting Values...')
                     values = extract_values_from_html(d.page_source)
                     append_to_sheet(values, rut, TABS[tab_])
-                    tprint(f'[+] Appended to sheet')
+                    #tprint(f'[+] Appended to sheet')
                 except Exception as exc:
                     tprint(f'[-] Failed on Tab level ({tab_}): {str(exc)[:200]}')
                     
                 
         except Exception as exc:
             tprint(f'[-] Failed on Contractor level ({rut}): {str(exc)[:200]}')
+        tprint('[+] Done')
         n += 1
         
     d.close()
@@ -175,7 +177,7 @@ def append_to_sheet(values, rut, tab):
     
     current_sheet = current_sheet.append(row)
     
-    print(tab)
+    #print(tab)
     S.df_to_sheet(current_sheet, index=False, replace=True, sheet=tab)
 
 

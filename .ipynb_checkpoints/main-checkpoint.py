@@ -1,5 +1,5 @@
 from utils import scrape_contractors, CONTRATISTAS, PLANILLA, tprint
-
+import sys
 
 def main():
     
@@ -27,6 +27,8 @@ def main():
             input()
             sys.exit()
     
+    print()
+    tprint('[+] DONE')
     sys.exit()
 
 
