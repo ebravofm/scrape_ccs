@@ -1,5 +1,6 @@
 from utils import scrape_contractors, tprint
 import sys
+import gpandas as gpd
 
 def main():
     
