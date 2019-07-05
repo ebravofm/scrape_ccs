@@ -1,4 +1,4 @@
-from utils import scrape_contractors, CONTRATISTAS, PLANILLA, tprint
+from utils import scrape_contractors, tprint
 import sys
 
 def main():
@@ -8,6 +8,8 @@ def main():
     while ruts_pending != 0:
         
         try:
+            PLANILLA = gpd.gExcelFile(GSHEET)
+            CONTRATISTAS = PLANILLA.parse('Lista Contratistas')
 
             df = CONTRATISTAS.copy()
             ruts_all = set(df.Rut)
