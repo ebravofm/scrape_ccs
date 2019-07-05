@@ -2,6 +2,8 @@ from utils import scrape_contractors, tprint
 import sys
 import gpandas as gpd
 
+GSHEET = '1PRYYRoSDazS_aMZ2He_2Okto73QKP4BEl4JwIX2O5dQ'
+
 def main():
     
     ruts_pending = 1
