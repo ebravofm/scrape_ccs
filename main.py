@@ -21,7 +21,7 @@ def main():
                 ruts_all = set(df['RUT / Nro.Cliente'])
                 
             sets = []
-            for sheet in [s for s in PLANILLA.sheet_names if s not in ['Informe RS', 'Lista Contratistas']]:
+            for sheet in [s for s in PLANILLA.sheet_names if s in ['Curriculum Empresarial', 'Evaluación Comportamiento']]:
                 try:
                     sets.append(set(PLANILLA.parse(sheet)['1. Rut'].tolist()))
                 except:
