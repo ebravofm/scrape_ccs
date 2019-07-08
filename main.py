@@ -15,11 +15,18 @@ def main():
             CONTRATISTAS = PLANILLA.parse('Lista Contratistas')
 
             df = CONTRATISTAS.copy()
-            ruts_all = set(df.Rut)
-
+            try:
+                ruts_all = set(df.Rut)
+            except:
+                ruts_all = set(df['RUT / Nro.Cliente'])
+                
             sets = []
             for sheet in [s for s in PLANILLA.sheet_names if s not in ['Informe RS', 'Lista Contratistas']]:
-                sets.append(set(PLANILLA.parse(sheet)['1. Rut'].tolist()))
+                try:
+                    sets.append(set(PLANILLA.parse(sheet)['1. Rut'].tolist()))
+                except:
+                    sets.append(set())
+                
             ruts_done = set.intersection(*sets)
 
             ruts_pending = ruts_all - ruts_done

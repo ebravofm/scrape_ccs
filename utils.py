@@ -8,8 +8,8 @@ import datetime
 from time import sleep
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
-from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import random
 from gspread_pandas import Spread, Client
@@ -30,7 +30,11 @@ TABS = {'Principal': 'Curriculum Empresarial',
 GSHEET = '1PRYYRoSDazS_aMZ2He_2Okto73QKP4BEl4JwIX2O5dQ'
 
 PLANILLA = gpd.gExcelFile(GSHEET)
-CONTRATISTAS = PLANILLA.parse('Lista Contratistas')
+try:
+    CONTRATISTAS = PLANILLA.parse('Lista Contratistas')
+except:
+    pass
+
 S = Spread(user = 'ebravofm', spread = GSHEET, user_creds_or_client=None)
 
 
@@ -89,7 +93,7 @@ def ccs_login(d):
     return d
 
 
-def extract_contrator_list():
+def extract_contrator_list2():
     # Get Page
     d = ccs_login()
     index = 'https://www.rednegociosccs.cl/WebPrivadoMandanteRPE/ConsultarFichaFull/Default.aspx'
@@ -112,25 +116,85 @@ def extract_contrator_list():
     return df
 
 
+def extract_contrator_list():
+    try:
+        # Get Page
+        d = ccs_login()
+
+        index = 'https://www.rednegociosccs.cl/WebPrivadoMandanteRPE/ConsultarFichaFull/Default.aspx'
+        d.get(index)
+
+        Buscar = d.find_element_by_id('UserControlBuscador1_Linkbutton1')
+        Buscar.click()
+
+        WebDriverWait(d, 10).until(EC.presence_of_element_located((By.ID, "UserControlProveedores1_dgvProveedores")))
+
+        # Lista Desplegada
+        dfs = []
+        n = 2
+        c = 1
+
+        check = True
+        
+        while check:
+            try:
+                if n == 11 and c == 10:
+                    n = 2
+                if n == 12:
+                    n = 2
+                tprint(f'[·] Scraping Page {c}')
+                sleep(2)
+                table = bs(d.page_source, 'lxml').find('table', id='UserControlProveedores1_dgvProveedores').prettify()
+                df = pd.read_html(table, header=0)[0]
+                dfs.append(df)
+                d.execute_script(f"javascript:__doPostBack('UserControlProveedores1$dgvProveedores$_ctl14$_ctl{n}','')")
+                n += 1
+                c += 1
+                try:
+                    check = False if (dfs[-1].equals(dfs[-2]) and dfs[-1].equals(dfs[-3])) else True
+                except IndexError:
+                    check = True
+
+            except KeyboardInterrupt:
+                break
+    except KeyboardInterrupt:
+        pass
+                
+    df = pd.concat(dfs)
+    
+    d.close()
+    
+    S.df_to_sheet(df, index=True, replace=True, sheet='Lista Contratistas')
+
+    return df
+
+
 def scrape_contractors(rut_list):
     tprint(f'[·] Logging in...')
     d = ccs_login()
     n = 1
+    
     for rut in rut_list:
         print()
         print()
         tprint(f'[·] Contratista {n}/{len(rut_list)}: {rut}...')
         print()
+        
         try:
-
             link = 'https://www.rednegociosccs.cl/WebPrivadoMandanteRPE/ConsultarFichaFull/Principal.aspx?proveedor=' + rut
             d.get(link)
             sleep(2)
 
             html = d.page_source
             soup = bs(html, 'lxml').find('ul', id='tabnav')
-            tabs = ['https://www.rednegociosccs.cl/WebPrivadoMandanteRPE/ConsultarFichaFull/'+t['href'] for t in soup.find_all('a')]
-
+            
+            tabs = []
+            for t in soup.find_all('a'):
+                try:
+                    tabs.append('https://www.rednegociosccs.cl/WebPrivadoMandanteRPE/ConsultarFichaFull/'+t['href'])
+                except:
+                    pass
+                
             for tab in tabs:
                 try:
                     tab_ = tab.split('/')[-1].split('.')[0]
@@ -143,6 +207,7 @@ def scrape_contractors(rut_list):
                         #tprint('Alert Accepted')
                     except:
                         pass
+                    
                     #tprint(f'[·] Extracting Values...')
                     values = extract_values_from_html(d.page_source)
                     append_to_sheet(values, rut, TABS[tab_])
@@ -161,7 +226,10 @@ def scrape_contractors(rut_list):
 
 def append_to_sheet(values, rut, tab):
     df = CONTRATISTAS
-    nombre = df['Razon Social'][df.Rut==rut].iloc[0]
+    try:
+        nombre = df['Razon Social'][df.Rut==rut].iloc[0]
+    except:
+        nombre = df['Nombre Empresa/Razón Social'][df['RUT / Nro.Cliente']==rut].iloc[0]
     
     try:
         current_sheet = gpd.read_gexcel(GSHEET, sheet_name=tab)
